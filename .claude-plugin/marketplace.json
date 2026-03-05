@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-usage-tracker",
+  "description": "Task-level token usage monitoring for Claude Code",
+  "owner": {
+    "name": "idean3885"
+  },
+  "plugins": [
+    {
+      "name": "usage-tracker",
+      "description": "Task-level token usage monitoring. Tracks costs across multiple sessions per logical task.",
+      "version": "0.1.0",
+      "author": {
+        "name": "idean3885"
+      },
+      "source": "./",
+      "category": "productivity",
+      "tags": [
+        "usage",
+        "token",
+        "monitoring",
+        "cost",
+        "tracking",
+        "ccusage"
+      ]
+    }
+  ]
+}
