@@ -1,63 +1,63 @@
 ---
 name: report
-description: Show comparison dashboard of all tracked tasks.
+description: 모든 추적 작업의 비용 비교 대시보드를 보여줍니다.
 ---
 
 # usage:report
 
-모든 추적된 작업의 비용을 비교하는 대시보드를 출력한다.
+모든 추적된 작업의 비용을 비교하는 대시보드를 출력합니다.
 
-## Trigger
+## 트리거
 
 - "usage report"
 - "usage dashboard"
 - "작업 비교"
 
-## Parameters
+## 파라미터
 
-- **filter** (optional): "active", "completed", "all" (default: "all")
-- **sort** (optional): "cost", "date", "efficiency" (default: "date")
+- **filter** (선택): "active", "completed", "all" (기본값: "all")
+- **sort** (선택): "cost", "date", "efficiency" (기본값: "date")
 
-## Procedure
+## 절차
 
-### 1. Load all tasks
+### 1. 전체 작업 로드
 
 ```bash
 cat "$HOME/.claude/usage-tracker/tasks.json"
 ```
 
-### 2. Query ccusage
+### 2. ccusage 조회
 
 ```bash
-ccusage session --since {earliest task startedAt as YYYYMMDD} --json --breakdown
+ccusage session --since {가장 이른 작업의 startedAt, YYYYMMDD 형식} --json --breakdown
 ```
 
-각 task의 sessions 배열에서 session ID를 매칭하여 해당 task에 속하는 비용만 집계한다.
+각 작업의 sessions 배열에서 세션 ID를 매칭하여 해당 작업에 속하는 비용만 집계합니다.
 
 **매칭 로직:**
-- task의 bindings[].project와 ccusage의 sessionId를 매칭
-- 같은 프로젝트에 여러 작업이 있을 경우, 세션 시작 시간과 task의 sessions[].id로 구분
+- 작업의 bindings[].project와 ccusage의 sessionId를 매칭합니다
+- 같은 프로젝트에 여러 작업이 있을 경우, 세션 시작 시간과 작업의 sessions[].id로 구분합니다
 
-### 3. Output comparison table
+### 3. 비교 표 출력
 
 ```
-[Usage Tracker] Dashboard
+[Usage Tracker] 대시보드
 
-| Task | Approach | Cost | Tokens | Sessions | Days | $/Day | Status |
-|------|----------|------|--------|----------|------|-------|--------|
+| 작업명 | 방식 | 비용 | 토큰 | 세션 | 일수 | 일일비용 | 상태 |
+|--------|------|------|------|------|------|----------|------|
 | {label} | {approach} | ${cost} | {tokens} | {count} | {days} | ${perDay} | {status} |
 
-Total tracked cost: ${totalCost}
+총 추적 비용: ${totalCost}
 ```
 
-### 4. Approach comparison (if multiple approaches exist)
+### 4. 방식별 비교 (여러 approach가 있을 때)
 
 ```
-[Approach Comparison]
-| Approach | Avg $/Task | Avg Tokens | Avg Sessions | Tasks |
-|----------|-----------|------------|-------------|-------|
-| manual   | ${avg}    | {avg}      | {avg}       | {n}   |
-| autopilot| ${avg}    | {avg}      | {avg}       | {n}   |
+[방식별 비교]
+| 방식 | 평균 비용/작업 | 평균 토큰 | 평균 세션 | 작업 수 |
+|------|---------------|-----------|-----------|---------|
+| manual   | ${avg} | {avg} | {avg} | {n} |
+| autopilot| ${avg} | {avg} | {avg} | {n} |
 ```
 
-이 비교가 플러그인의 핵심 가치 -- 워크플로우 변경이 실제로 효율적인지 데이터로 증명한다.
+이 비교가 플러그인의 핵심 가치입니다 — 워크플로우 변경이 실제로 효율적인지 데이터로 증명합니다.

@@ -1,102 +1,102 @@
 ---
 name: complete
-description: Complete a task and generate a final usage report.
+description: 작업을 완료 처리하고 최종 사용량 리포트를 생성합니다.
 ---
 
 # usage:complete
 
-Complete a tracked task and generate a final usage report saved to local storage.
+추적 중인 작업을 완료 처리하고, 최종 사용량 리포트를 로컬에 저장합니다.
 
-## Trigger
+## 트리거
 
 - "usage complete"
 - "usage done"
 - "작업 추적 종료"
 
-## Parameters
+## 파라미터
 
-- **taskId** (optional): Task to complete. If omitted and only one active task exists, uses that one. If multiple, ask user.
-- **summary** (optional): Brief description of what was accomplished.
+- **taskId** (선택): 완료할 작업. 생략 시 진행 중인 작업이 하나면 자동 선택하고, 여러 개면 사용자에게 확인합니다.
+- **summary** (선택): 작업 결과에 대한 간단한 설명.
 
-## Procedure
+## 절차
 
-### 1. Identify task
+### 1. 작업 식별
 
 ```bash
 cat "$HOME/.claude/usage-tracker/tasks.json"
 ```
 
-Find the target task. If ambiguous, list active tasks and ask.
+대상 작업을 찾습니다. 모호한 경우 진행 중인 작업 목록을 보여주고 확인합니다.
 
-### 2. Get final usage data
+### 2. 최종 사용량 데이터 조회
 
-Same as snap — query ccusage and aggregate.
+snap과 동일 — ccusage를 조회하여 집계합니다.
 
 ```bash
 ccusage session --since {task.startedAt as YYYYMMDD} --json --breakdown
 ```
 
-### 3. Generate report
+### 3. 리포트 생성
 
-Create markdown report at `~/.claude/usage-tracker/reports/{taskId}-{date}.md`:
+`~/.claude/usage-tracker/reports/{taskId}-{date}.md`에 마크다운 리포트를 생성합니다:
 
 ```markdown
-# Usage Report: {label}
+# 사용량 리포트: {label}
 
-## Summary
+## 요약
 
-- **Task**: {label}
-- **Approach**: {approach}
-- **Period**: {startedAt} ~ {completedAt}
-- **Duration**: {days}d
-- **Tags**: {tags}
+- **작업명**: {label}
+- **작업 방식**: {approach}
+- **기간**: {startedAt} ~ {completedAt}
+- **소요 일수**: {days}일
+- **태그**: {tags}
 
-## Token Usage
+## 토큰 사용량
 
-| Metric | Value |
-|--------|-------|
-| Total Cost | ${cost} |
-| Total Tokens | {tokens} |
-| Input Tokens | {input} |
-| Output Tokens | {output} |
-| Cache Read | {cacheRead} |
-| Cache Create | {cacheCreate} |
+| 항목 | 값 |
+|------|-----|
+| 총 비용 | ${cost} |
+| 총 토큰 | {tokens} |
+| 입력 토큰 | {input} |
+| 출력 토큰 | {output} |
+| 캐시 읽기 | {cacheRead} |
+| 캐시 생성 | {cacheCreate} |
 
-## Model Breakdown
+## 모델별 내역
 
-| Model | Cost | Tokens |
-|-------|------|--------|
+| 모델 | 비용 | 토큰 |
+|------|------|------|
 | {model} | ${cost} | {tokens} |
 
-## Sessions
+## 세션 목록
 
-| # | Session ID | Added | Auto |
-|---|-----------|-------|------|
-| 1 | {id} | {date} | {yes/no} |
+| # | 세션 ID | 등록일 | 자동 등록 |
+|---|---------|--------|-----------|
+| 1 | {id} | {date} | {예/아니오} |
 
-## Efficiency Metrics
+## 효율 지표
 
-- **Cost per day**: ${cost/days}
-- **Output tokens per session**: {output/sessions}
-- **Cache hit ratio**: {cacheRead / (cacheRead + cacheCreate + input)}%
+- **일일 비용**: ${cost/days}
+- **세션당 출력 토큰**: {output/sessions}
+- **캐시 적중률**: {cacheRead / (cacheRead + cacheCreate + input)}%
 
-## Notes
+## 메모
 
-{user summary if provided}
+{사용자가 제공한 summary}
 ```
 
-### 4. Update tasks.json
+### 4. tasks.json 업데이트
 
-Set task status to "completed", add completedAt timestamp.
+작업 상태를 "completed"로 변경하고, completedAt 타임스탬프를 추가합니다.
 
-### 5. Output
+### 5. 결과 출력
 
 ```
-[Usage Tracker] Task completed
-- Report saved: ~/.claude/usage-tracker/reports/{taskId}-{date}.md
-- Total cost: ${cost}
-- Duration: {days}d
-- Sessions: {count}
+[Usage Tracker] 작업이 완료되었습니다
+- 리포트 저장: ~/.claude/usage-tracker/reports/{taskId}-{date}.md
+- 총 비용: ${cost}
+- 소요 기간: {days}일
+- 세션 수: {count}
 ```
 
-Print the full report content to the user as well.
+리포트 전체 내용도 함께 출력합니다.
