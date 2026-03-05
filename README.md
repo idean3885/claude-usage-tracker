@@ -1,2 +1,113 @@
 # claude-usage-tracker
-Task-level token usage monitoring plugin for Claude Code
+
+> Task-level token usage monitoring plugin for Claude Code
+
+---
+
+## 왜 만들었는가
+
+Claude Code를 실무에 쓰면 자연스럽게 드는 질문이 있다.
+
+**"그래서 이 작업에 얼마나 썼는가?"**
+
+Claude Code는 세션 단위로 토큰을 기록하고, [ccusage](https://github.com/ryoppippi/ccusage) 같은 도구로 세션별 비용을 볼 수 있다. 하지만 실무에서 하나의 작업은 여러 세션에 걸친다.
+
+- 컨텍스트 윈도우 소진으로 세션이 끊기고
+- 메모리에 기록한 뒤 새 세션에서 이어가고
+- 같은 프로젝트에서 다른 작업이 병렬로 돌아간다
+
+**세션 =/= 작업**이다. 그래서 "이 이슈에 토큰을 얼마나 썼는가"를 알 수 없다.
+
+이 플러그인은 **작업(Task) 단위로 세션을 묶어 토큰/비용을 추적**한다.
+
+## 어디에 쓸 수 있는가
+
+- AI가 제안하는 워크플로우/스킬이 **정말 효율적인지** 수치로 검증
+- 수동 작업 vs 자동화 파이프라인의 **토큰 대비 산출물** 비교
+- 개인 포트폴리오 — "AI를 얼마나 효과적으로 쓰는가"를 데이터로 증명
+- 팀 내 AI 도구 도입 제안 시 **비용 근거 자료**
+
+## 설치
+
+```bash
+# Claude Code 플러그인으로 설치 (예정)
+claude plugin add idean3885/claude-usage-tracker
+```
+
+## 사용법
+
+### 작업 추적 시작
+
+```
+/usage:start "GPU Live 프로젝트 CRUD 정책서"
+```
+
+현재 세션이 자동으로 등록된다. 같은 프로젝트+브랜치에서 새 세션을 시작하면 자동 연결된다.
+
+옵션:
+- `approach`: 작업 방식 태그 (manual, workflow-runner, autopilot 등)
+- `tags`: 분류 태그 (spec, planning, refactor 등)
+
+### 중간 확인
+
+```
+/usage:snap
+```
+
+지금까지 이 작업에 소모된 토큰/비용을 보여준다.
+
+### 작업 종료
+
+```
+/usage:complete
+```
+
+최종 리포트를 생성하고 `~/.claude/usage-tracker/reports/`에 저장한다.
+
+### 전체 대시보드
+
+```
+/usage:report
+```
+
+모든 작업의 비용을 비교한다. approach별 효율 차이를 한눈에 볼 수 있다.
+
+## 플러그인 자체의 오버헤드
+
+이 플러그인도 토큰을 소모한다. 투명하게 공개한다.
+
+| 항목 | 토큰 | 비용 (Opus 기준) |
+|------|------|------------------|
+| 스킬 호출 1회 (SKILL.md 주입) | ~500-800 | < $0.01 |
+| SessionStart 훅 (자동 등록) | ~100 | < $0.001 |
+| 작업 1건 전체 추적 비용 | ~2,000-3,000 | < $0.05 |
+
+**추적 비용은 추적 대상 비용의 0.1% 미만**이다.
+
+Sonnet 4.6으로도 모든 스킬이 동작한다. 복잡한 추론이 아니라 구조화된 데이터 조작이기 때문이다.
+
+## 의존성
+
+- **ccusage** (필수): 세션별 토큰 데이터 소스. `npm install -g ccusage`
+- **Claude Code** (필수): 플러그인 런타임
+- 워크플로우 플러그인 연동 (선택): `workflow.json`의 `currentIssue`가 있으면 자동 바인딩
+
+## 데이터 저장 위치
+
+```
+~/.claude/usage-tracker/
+  tasks.json          # 작업-세션 매핑 (Single Source of Truth)
+  reports/            # 완료된 작업별 리포트 (마크다운)
+```
+
+모든 데이터는 로컬에만 저장된다. 외부 전송 없음.
+
+## 로드맵
+
+- **v0.1.0** (현재): MVP — 수동 시작/종료, ccusage 기반 집계
+- **v0.2.0**: 과측정 보정 — 세션 제외/추가 기능, 히스토리 분석
+- **v0.3.0**: 효율 대시보드 — approach별 비교, 시각화
+
+## 라이선스
+
+MIT
