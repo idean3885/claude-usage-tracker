@@ -62,6 +62,21 @@ ccusage session --since {task.startedAt as YYYYMMDD} --json --breakdown
 | 캐시 읽기 | {cacheRead} |
 | 캐시 생성 | {cacheCreate} |
 
+## 구간별 사용량
+
+체크포인트가 기록된 경우에만 이 섹션을 포함합니다.
+체크포인트가 없으면 이 섹션을 생략합니다.
+
+| # | 구간 | 토큰 | 비용 | 비율 |
+|---|------|------|------|------|
+| 1 | {checkpoint1.label} | {segmentTokens} | ${segmentCost} | {percent}% |
+| 2 | {checkpoint2.label} | {segmentTokens} | ${segmentCost} | {percent}% |
+| - | (마지막 체크포인트 이후) | {remainingTokens} | ${remainingCost} | {percent}% |
+| | **합계** | **{totalTokens}** | **${totalCost}** | **100%** |
+
+구간별 비율은 각 구간의 비용을 총 비용으로 나눈 값입니다.
+"마지막 체크포인트 이후" 구간은 마지막 체크포인트의 누적값과 최종 누적값의 차이입니다.
+
 ## 모델별 내역
 
 | 모델 | 비용 | 토큰 |
