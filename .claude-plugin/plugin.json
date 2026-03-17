@@ -1,6 +1,5 @@
 {
   "name": "usage-tracker",
-  "version": "0.1.0",
   "description": "Task-level token usage monitoring for Claude Code. Tracks costs across multiple sessions per logical task.",
   "author": {
     "name": "idean3885"
